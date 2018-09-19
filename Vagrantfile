@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
   yum install -y nfs-utils
-  echo "10.11.5.1 head" >> /etc/hosts
+  echo "10.11.5.10 head" >> /etc/hosts
   for i in {1..#{n_node}}; do
     echo "10.11.5.1$i node-$i" >> /etc/hosts
   done
@@ -40,15 +40,14 @@ Vagrant.configure("2") do |config|
   # build head node
   config.vm.define "head" do |head|
     head.vm.hostname = "head"
-    head.vm.network "private_network", ip: "10.11.5.1"
+    head.vm.network "private_network", ip: "10.11.5.10"
     head.vm.provider "virtualbox" do |vb|
       vb.memory = 512
     end
     head.vm.provision "shell", inline: <<-SHELL
       hostname
       systemctl enable --now nfs
-      mkdir -p /opt
-      echo "/opt 10.11.5.0/24(rw)" >> /etc/exports
+      echo "/home 10.11.5.0/24(rw)" >> /etc/exports
       exportfs -a
       systemctl restart nfs
     SHELL
@@ -63,8 +62,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.provision "shell", inline: <<-SHELL
 	hostname
-        mkdir -p /opt
-	mount.nfs head:/opt /opt
+	mount.nfs head:/home /home
       SHELL
     end
   end
