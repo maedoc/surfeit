@@ -11,7 +11,7 @@ ENV["LC_ALL"] = "en_US.UTF-8"
 # - freeipa
 # - jupyterhub
 
-n_node = 4
+n_node = 1
 
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/7"
@@ -45,24 +45,20 @@ Vagrant.configure("2") do |config|
       vb.memory = 512
     end
     head.vm.provision "shell", inline: <<-SHELL
-      hostname
-      systemctl enable --now nfs
-      echo "/home 10.11.5.0/24(rw)" >> /etc/exports
-      exportfs -a
-      systemctl restart nfs
+      yum install -y epel-release
+      yum install -y squid
+      systemctl enable --now squid
     SHELL
   end
 
   (1..n_node).each do |i|
-    config.vm.define "node-#{i}" do |node|
-      node.vm.hostname = "head-#{i}"
+    config.vm.define "node#{i}" do |node|
+      node.vm.hostname = "node#{i}"
       node.vm.network "private_network", ip: "10.11.5.1#{i}"
       node.vm.provider "virtualbox" do |vb|
         vb.memory = 256
       end
       node.vm.provision "shell", inline: <<-SHELL
-	hostname
-	mount.nfs head:/home /home
       SHELL
     end
   end

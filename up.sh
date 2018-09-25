@@ -2,7 +2,7 @@
 
 # TODO pull names from Vagrantfile?
 
-for name in head node-{1..4}
+for name in head node-1
 do
   vagrant up $name &
 done
