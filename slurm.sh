@@ -76,8 +76,7 @@ then
     systemctl daemon-reload
     systemctl enable --now slurmd
     systemctl start slurmd
-    sleep 1
-    scontrol update NodeName=$(hostname -s) state=IDLE
+    while ! scontrol update nodename=node state=idle; do sleep 1; done
 fi
 
 # update slurm.conf
